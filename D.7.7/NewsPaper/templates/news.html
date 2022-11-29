@@ -1,0 +1,68 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{# Импортируем модуль с нашим тегом  чтобы пагинация и фильтрация работали одновременно#}
+{% load custom_tags %}
+
+<!-- Название у нас будет products -->
+{% block title %}
+Новости
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все новости -->
+{% block content %}
+<h2>Все новости Борисова</h2>
+<hr>
+
+
+{% if news %}
+
+        <table>
+           <tr>
+               <td>
+                   Название
+               </td>
+               <td>
+                   Дата публикации
+               </td>
+               <td>
+                   Начало статьи
+               </td>
+           </tr>
+
+           {% for new in news %}
+           <tr>
+               <td><a href="/news/{{ new.id }}">{{ new.title }}</a></td>
+               <td>{{ new.time_in|date:'d.m.Y' }}</td>
+               <td>{{ new.text_post|truncatechars:20 }}</td>
+           </tr>
+           {% endfor %}
+       </table>
+       <!-- <h4>общее кол-во новостей: {{ news|length }}</h4>-->
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+
+    {# Добавляем пагинацию на страницу #}
+
+   {% if page_obj.has_previous %}
+       {# Для каждой ссылки пагинации указываем обработку через новый тег #}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+
+{% endblock content %}
